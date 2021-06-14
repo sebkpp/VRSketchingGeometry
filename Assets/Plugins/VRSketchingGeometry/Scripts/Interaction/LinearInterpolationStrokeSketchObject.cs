@@ -11,7 +11,7 @@ namespace VRSketchingGeometry.SketchObjectManagement
     /// A line sketch object with no smooth interpolation between control point.
     /// </summary>
     /// <remarks>Original author: tterpi</remarks>
-    public class LinearInterpolationLineSketchObject : LineSketchObject, ISerializableComponent
+    public class LinearInterpolationStrokeSketchObject : StrokeSketchObject, ISerializableComponent
     {
         protected override SplineMesh MakeSplineMesh(int interpolationSteps, Vector3 lineDiameter)
         {
@@ -20,8 +20,8 @@ namespace VRSketchingGeometry.SketchObjectManagement
 
         SerializableComponentData ISerializableComponent.GetData()
         {
-            LineSketchObjectData data = base.GetData();
-            data.Interpolation = LineSketchObjectData.InterpolationType.Linear;
+            StrokeSketchObjectData data = base.GetData();
+            data.Interpolation = StrokeSketchObjectData.InterpolationType.Linear;
             return data;
         }
     }

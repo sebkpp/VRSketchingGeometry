@@ -11,15 +11,15 @@ using Unity.PerformanceTesting;
 
 namespace Tests
 {
-    public class LinePerformanceTest
+    public class StrokePerformanceTest
     {
-        private LineSketchObject LineSketchObject;
+        private StrokeSketchObject StrokeSketchObject;
 
         [UnitySetUp]
         public IEnumerator SetUpScene()
         {
             yield return SceneManager.LoadSceneAsync("CommandTestScene", LoadSceneMode.Single);
-            this.LineSketchObject = GameObject.FindObjectOfType<LineSketchObject>();
+            this.StrokeSketchObject = GameObject.FindObjectOfType<StrokeSketchObject>();
             yield return null;
         }
 
@@ -56,7 +56,7 @@ namespace Tests
             List<Vector3> controlPoints = GenerateControlPoints(length);
             Measure.Method(() =>
             {
-                this.LineSketchObject.SetControlPointsLocalSpace(controlPoints);
+                this.StrokeSketchObject.SetControlPointsLocalSpace(controlPoints);
             })
             .Run();
         }
@@ -67,10 +67,10 @@ namespace Tests
             List<Vector3> controlPoints = GenerateControlPoints(length-1);
             Measure.Method(() =>
             {
-                this.LineSketchObject.AddControlPoint(new Vector3(length, 0, 0));
+                this.StrokeSketchObject.AddControlPoint(new Vector3(length, 0, 0));
             })
             .SetUp(()=> {
-                this.LineSketchObject.SetControlPointsLocalSpace(controlPoints);
+                this.StrokeSketchObject.SetControlPointsLocalSpace(controlPoints);
             })
             .Run();
         }
@@ -96,26 +96,26 @@ namespace Tests
             List<Vector3> controlPoints = GenerateControlPoints(10);
             Measure.Method(() =>
             {
-                this.LineSketchObject.SetControlPointsLocalSpace(controlPoints);
+                this.StrokeSketchObject.SetControlPointsLocalSpace(controlPoints);
             })
             .SetUp(() => {
-                this.LineSketchObject.SetInterpolationSteps(steps);
+                this.StrokeSketchObject.SetInterpolationSteps(steps);
             })
             .Run();
         }
 
 
         [UnityTest, Performance]
-        public IEnumerator Framerate_LineSketchObjects([Values(5,10,20)]int steps, [Values(100, 500, 1000, 2000, 4000, 6000, 8000, 10000)]int count) {
+        public IEnumerator Framerate_StrokeSketchObjects([Values(5,10,20)]int steps, [Values(100, 500, 1000, 2000, 4000, 6000, 8000, 10000)]int count) {
             List<Vector3> controlPoints = GenerateControlPointsYDirection(3);
-            this.LineSketchObject.SetInterpolationSteps(steps);
-            this.LineSketchObject.SetControlPointsLocalSpace(controlPoints);
+            this.StrokeSketchObject.SetInterpolationSteps(steps);
+            this.StrokeSketchObject.SetControlPointsLocalSpace(controlPoints);
             for (int i = 1; i < count; i++)
             {
-                LineSketchObject currentLine = GameObject.Instantiate(this.LineSketchObject).GetComponent<LineSketchObject>();
-                currentLine.SetInterpolationSteps(steps);
-                currentLine.SetControlPointsLocalSpace(controlPoints);
-                currentLine.transform.position = new Vector3(i%50, 0, i/50);
+                StrokeSketchObject currentStroke = GameObject.Instantiate(this.StrokeSketchObject).GetComponent<StrokeSketchObject>();
+                currentStroke.SetInterpolationSteps(steps);
+                currentStroke.SetControlPointsLocalSpace(controlPoints);
+                currentStroke.transform.position = new Vector3(i%50, 0, i/50);
             }
             yield return Measure.Frames().Run();
         }

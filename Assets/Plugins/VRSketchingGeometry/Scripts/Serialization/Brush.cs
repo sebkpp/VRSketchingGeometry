@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using VRSketchingGeometry.Serialization;
+using VRSketchingGeometry.SketchObjectManagement;
 
 namespace VRSketchingGeometry.Serialization {
     /// <summary>
@@ -14,9 +15,9 @@ namespace VRSketchingGeometry.Serialization {
     }
 
     /// <summary>
-    /// Brush for <see cref="VRSketchingGeometry.SketchObjectManagement.LineSketchObject"/>.
+    /// Brush for <see cref="StrokeSketchObject"/>.
     /// </summary>
-    public class LineBrush : Brush {
+    public class StrokeBrush : Brush {
         public float CrossSectionScale;
         public List<Vector3> CrossSectionVertices;
         public List<Vector3> CrossSectionNormals;

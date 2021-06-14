@@ -5,6 +5,7 @@ using VRSketchingGeometry.SketchObjectManagement;
 using VRSketchingGeometry.Export;
 using System.Xml;
 using System.Xml.Serialization;
+using UnityEngine.Serialization;
 using VRSketchingGeometry;
 using VRSketchingGeometry.Meshing;
 using VRSketchingGeometry.Serialization;
@@ -13,9 +14,9 @@ public class DeleteByRadiusTest : MonoBehaviour
 {
     public DefaultReferences defaults;
     public GameObject selectionPrefab;
-    public GameObject LineSketchObjectPrefab;
-    private LineSketchObject lineSketchObject;
-    private LineSketchObject lineSketchObject2;
+    [FormerlySerializedAs("LineSketchObjectPrefab")] public GameObject StrokeSketchObjectPrefab;
+    private StrokeSketchObject strokeSketchObject;
+    private StrokeSketchObject strokeSketchObject2;
     public GameObject controlPointParent;
     public GameObject deletePoint;
     public float deleteRadius;
@@ -25,16 +26,16 @@ public class DeleteByRadiusTest : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        lineSketchObject = Instantiate(LineSketchObjectPrefab).GetComponent<LineSketchObject>();
-        lineSketchObject.SetLineDiameter(.5f);
+        strokeSketchObject = Instantiate(StrokeSketchObjectPrefab).GetComponent<StrokeSketchObject>();
+        strokeSketchObject.SetStrokeDiameter(.5f);
 
-        lineSketchObject2 = Instantiate(defaults.LinearInterpolationLineSketchObjectPrefab).GetComponent<LineSketchObject>();
-        lineSketchObject2.SetLineDiameter(.5f);
+        strokeSketchObject2 = Instantiate(defaults.LinearInterpolationStrokeSketchObjectPrefab).GetComponent<StrokeSketchObject>();
+        strokeSketchObject2.SetStrokeDiameter(.5f);
     }
 
     IEnumerator changeDiameter() {
         yield return new WaitForSeconds(5);
-        lineSketchObject.DeleteControlPoints(deletePoint.transform.position, deleteRadius, out List<LineSketchObject> newLines);
+        strokeSketchObject.DeleteControlPoints(deletePoint.transform.position, deleteRadius, out List<StrokeSketchObject> newLines);
         OBJExporter exporter = new OBJExporter();
         string exportPath = OBJExporter.GetDefaultExportPath();
         //exporter.ExportGameObject(lineSketchObject.gameObject, exportPath);
@@ -42,9 +43,9 @@ public class DeleteByRadiusTest : MonoBehaviour
         //XMLSerializeTest();
         //XMLSerializeTest2();
         //exporter.ExportGameObject(controlPointParent, exportPath);
-        lineSketchObject.SetInterpolationSteps(4);
-        lineSketchObject.RefineMesh();
-        lineSketchObject2.RefineMesh();
+        strokeSketchObject.SetInterpolationSteps(4);
+        strokeSketchObject.RefineMesh();
+        strokeSketchObject2.RefineMesh();
 
         //Debug.Log(exportPath);
         //lineSketchObject.setLineDiameter(.1f);
@@ -62,7 +63,7 @@ public class DeleteByRadiusTest : MonoBehaviour
         // First write something so that there is something to read ...  
         var writer = new System.Xml.Serialization.XmlSerializer(typeof(Vector3[]));
         var wfile = new System.IO.StreamWriter(path);
-        writer.Serialize(wfile, lineSketchObject);
+        writer.Serialize(wfile, strokeSketchObject);
         wfile.Close();
 
         // Now we can read the serialized book ...  
@@ -76,13 +77,13 @@ public class DeleteByRadiusTest : MonoBehaviour
 
     private void XMLSerializeTest2() {
         string path = Serializer.WriteTestXmlFile<VRSketchingGeometry.Serialization.SerializableComponentData>
-            ((lineSketchObject as ISerializableComponent).GetData());
-        Serializer.DeserializeFromXmlFile(out LineSketchObjectData readData, System.IO.Path.Combine(Application.dataPath, "TestSerialization.xml"));
-        LineSketchObject deserLine = Instantiate(LineSketchObjectPrefab).GetComponent<LineSketchObject>();
+            ((strokeSketchObject as ISerializableComponent).GetData());
+        Serializer.DeserializeFromXmlFile(out StrokeSketchObjectData readData, System.IO.Path.Combine(Application.dataPath, "TestSerialization.xml"));
+        StrokeSketchObject deserStroke = Instantiate(StrokeSketchObjectPrefab).GetComponent<StrokeSketchObject>();
         readData.SketchMaterial.AlbedoColor = Color.red;
-        (deserLine as ISerializableComponent).ApplyData(readData);
+        (deserStroke as ISerializableComponent).ApplyData(readData);
 
-        deserLine.transform.position += new Vector3(0,2,0);
+        deserStroke.transform.position += new Vector3(0,2,0);
 
         Debug.Log(readData.ControlPoints.Count);
     }
@@ -95,11 +96,11 @@ public class DeleteByRadiusTest : MonoBehaviour
     private void lineSketchObjectTest() {
 
         foreach (Transform controlPoint in controlPointParent.transform) {
-            lineSketchObject.AddControlPoint(controlPoint.position);
-            lineSketchObject2.AddControlPoint(controlPoint.position);
+            strokeSketchObject.AddControlPoint(controlPoint.position);
+            strokeSketchObject2.AddControlPoint(controlPoint.position);
         }
 
-        lineSketchObject.SetLineCrossSection(CircularCrossSection.GenerateVertices(16), CircularCrossSection.GenerateVertices(16, 1f), .5f);
+        strokeSketchObject.SetStrokeCrossSection(CircularCrossSection.GenerateVertices(16), CircularCrossSection.GenerateVertices(16, 1f), .5f);
         //lineSketchObject.setLineDiameter(.7f);
         StartCoroutine(changeDiameter());
 
@@ -108,14 +109,14 @@ public class DeleteByRadiusTest : MonoBehaviour
 
     private void SetAddComparison() {
         List<Vector3> controlPoints = new List<Vector3>();
-        lineSketchObject.SetControlPointsLocalSpace(new List<Vector3>());
+        strokeSketchObject.SetControlPointsLocalSpace(new List<Vector3>());
         foreach (Transform controlPoint in controlPointParent.transform)
         {
-            lineSketchObject.AddControlPoint(controlPoint.position);
+            strokeSketchObject.AddControlPoint(controlPoint.position);
             controlPoints.Add(controlPoint.position);
         }
 
-        lineSketchObject2.SetControlPointsLocalSpace(controlPoints);
+        strokeSketchObject2.SetControlPointsLocalSpace(controlPoints);
     }
 
     // Update is called once per frame

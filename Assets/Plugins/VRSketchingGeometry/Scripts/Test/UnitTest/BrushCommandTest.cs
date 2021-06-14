@@ -6,7 +6,7 @@ using UnityEngine.TestTools;
 using VRSketchingGeometry.SketchObjectManagement;
 using VRSketchingGeometry.Commands;
 using VRSketchingGeometry.Serialization;
-using VRSketchingGeometry.Commands.Line;
+using VRSketchingGeometry.Commands.Stroke;
 using VRSketchingGeometry.Commands.Ribbon;
 using UnityEngine.SceneManagement;
 
@@ -15,7 +15,7 @@ namespace Tests
     public class BrushCommandTest
     {
         private RibbonSketchObject Ribbon;
-        private LineSketchObject Line;
+        private StrokeSketchObject Stroke;
         private PatchSketchObject Patch;
         private CommandInvoker Invoker;
 
@@ -24,87 +24,87 @@ namespace Tests
         {
             yield return SceneManager.LoadSceneAsync("CommandTestScene", LoadSceneMode.Single);
             this.Ribbon = GameObject.FindObjectOfType<RibbonSketchObject>();
-            this.Line = GameObject.FindObjectOfType<LineSketchObject>();
+            this.Stroke = GameObject.FindObjectOfType<StrokeSketchObject>();
             this.Patch = GameObject.FindObjectOfType<PatchSketchObject>();
             yield return null;
             Invoker = new CommandInvoker();
         }
 
         [Test]
-        public void SetBrushOnLineSketchObject()
+        public void SetBrushOnStrokeSketchObject()
         {
-            ICommand addCommand = new AddControlPointCommand(this.Line, new Vector3(0,0,0));
+            ICommand addCommand = new AddControlPointCommand(this.Stroke, new Vector3(0,0,0));
             Invoker.ExecuteCommand(addCommand);
-            addCommand = new AddControlPointCommand(this.Line, new Vector3(1, 1, 1));
+            addCommand = new AddControlPointCommand(this.Stroke, new Vector3(1, 1, 1));
             Invoker.ExecuteCommand(addCommand);
-            addCommand = new AddControlPointCommand(this.Line, new Vector3(2, 2, 0));
+            addCommand = new AddControlPointCommand(this.Stroke, new Vector3(2, 2, 0));
             Invoker.ExecuteCommand(addCommand);
-            Assert.AreEqual((2*20 + 2) * 7, this.Line.GetComponent<MeshFilter>().sharedMesh.vertices.Length);
+            Assert.AreEqual((2*20 + 2) * 7, this.Stroke.GetComponent<MeshFilter>().sharedMesh.vertices.Length);
 
-            LineBrush brush = this.Line.GetBrush() as LineBrush;
+            StrokeBrush brush = this.Stroke.GetBrush() as StrokeBrush;
             brush.SketchMaterial.AlbedoColor = Color.green;
             brush.CrossSectionVertices.Add(Vector3.one);
             brush.CrossSectionNormals.Add(Vector3.one);
             brush.InterpolationSteps = 10;
-            ICommand SetBrushCommand = new SetBrushCommand(this.Line, brush);
+            ICommand SetBrushCommand = new SetBrushCommand(this.Stroke, brush);
             Invoker.ExecuteCommand(SetBrushCommand);
 
-            Assert.AreEqual(Color.green, this.Line.GetComponent<MeshRenderer>().sharedMaterial.color);
-            LineBrush updatedBrush = this.Line.GetBrush() as LineBrush;
+            Assert.AreEqual(Color.green, this.Stroke.GetComponent<MeshRenderer>().sharedMaterial.color);
+            StrokeBrush updatedBrush = this.Stroke.GetBrush() as StrokeBrush;
             Assert.AreEqual(Color.green, updatedBrush.SketchMaterial.AlbedoColor);
-            Assert.AreEqual((2 * 10 + 2) * 8, this.Line.GetComponent<MeshFilter>().sharedMesh.vertices.Length);
+            Assert.AreEqual((2 * 10 + 2) * 8, this.Stroke.GetComponent<MeshFilter>().sharedMesh.vertices.Length);
         }
 
         [Test]
-        public void SetBrushOnLineSketchObjectUndo()
+        public void SetBrushOnStrokeSketchObjectUndo()
         {
-            ICommand addCommand = new AddControlPointCommand(this.Line, new Vector3(0, 0, 0));
+            ICommand addCommand = new AddControlPointCommand(this.Stroke, new Vector3(0, 0, 0));
             Invoker.ExecuteCommand(addCommand);
-            addCommand = new AddControlPointCommand(this.Line, new Vector3(1, 1, 1));
+            addCommand = new AddControlPointCommand(this.Stroke, new Vector3(1, 1, 1));
             Invoker.ExecuteCommand(addCommand);
-            addCommand = new AddControlPointCommand(this.Line, new Vector3(2, 2, 0));
+            addCommand = new AddControlPointCommand(this.Stroke, new Vector3(2, 2, 0));
             Invoker.ExecuteCommand(addCommand);
-            Assert.AreEqual((2 * 20 + 2) * 7, this.Line.GetComponent<MeshFilter>().sharedMesh.vertices.Length);
+            Assert.AreEqual((2 * 20 + 2) * 7, this.Stroke.GetComponent<MeshFilter>().sharedMesh.vertices.Length);
 
-            LineBrush brush = this.Line.GetBrush() as LineBrush;
+            StrokeBrush brush = this.Stroke.GetBrush() as StrokeBrush;
             Color originalColor = brush.SketchMaterial.AlbedoColor;
             brush.SketchMaterial.AlbedoColor = Color.green;
             brush.CrossSectionVertices.Add(Vector3.one);
             brush.CrossSectionNormals.Add(Vector3.one);
-            ICommand SetBrushCommand = new SetBrushCommand(this.Line, brush);
+            ICommand SetBrushCommand = new SetBrushCommand(this.Stroke, brush);
             Invoker.ExecuteCommand(SetBrushCommand);
             Invoker.Undo();
 
-            Assert.AreEqual(originalColor, this.Line.GetComponent<MeshRenderer>().sharedMaterial.color);
-            LineBrush updatedBrush = this.Line.GetBrush() as LineBrush;
+            Assert.AreEqual(originalColor, this.Stroke.GetComponent<MeshRenderer>().sharedMaterial.color);
+            StrokeBrush updatedBrush = this.Stroke.GetBrush() as StrokeBrush;
             Assert.AreEqual(originalColor, updatedBrush.SketchMaterial.AlbedoColor);
-            Assert.AreEqual((2 * 20 + 2) * 7, this.Line.GetComponent<MeshFilter>().sharedMesh.vertices.Length);
+            Assert.AreEqual((2 * 20 + 2) * 7, this.Stroke.GetComponent<MeshFilter>().sharedMesh.vertices.Length);
         }
 
         [Test]
-        public void SetBrushOnLineSketchObjectRedo()
+        public void SetBrushOnStrokeSketchObjectRedo()
         {
-            ICommand addCommand = new AddControlPointCommand(this.Line, new Vector3(0, 0, 0));
+            ICommand addCommand = new AddControlPointCommand(this.Stroke, new Vector3(0, 0, 0));
             Invoker.ExecuteCommand(addCommand);
-            addCommand = new AddControlPointCommand(this.Line, new Vector3(1, 1, 1));
+            addCommand = new AddControlPointCommand(this.Stroke, new Vector3(1, 1, 1));
             Invoker.ExecuteCommand(addCommand);
-            addCommand = new AddControlPointCommand(this.Line, new Vector3(2, 2, 0));
+            addCommand = new AddControlPointCommand(this.Stroke, new Vector3(2, 2, 0));
             Invoker.ExecuteCommand(addCommand);
-            Assert.AreEqual((2 * 20 + 2) * 7, this.Line.GetComponent<MeshFilter>().sharedMesh.vertices.Length);
+            Assert.AreEqual((2 * 20 + 2) * 7, this.Stroke.GetComponent<MeshFilter>().sharedMesh.vertices.Length);
 
-            LineBrush brush = this.Line.GetBrush() as LineBrush;
+            StrokeBrush brush = this.Stroke.GetBrush() as StrokeBrush;
             brush.SketchMaterial.AlbedoColor = Color.green;
             brush.CrossSectionVertices.Add(Vector3.one);
             brush.CrossSectionNormals.Add(Vector3.one);
-            ICommand SetBrushCommand = new SetBrushCommand(this.Line, brush);
+            ICommand SetBrushCommand = new SetBrushCommand(this.Stroke, brush);
             Invoker.ExecuteCommand(SetBrushCommand);
             Invoker.Undo();
             Invoker.Redo();
 
-            Assert.AreEqual(Color.green, this.Line.GetComponent<MeshRenderer>().sharedMaterial.color);
-            LineBrush updatedBrush = this.Line.GetBrush() as LineBrush;
+            Assert.AreEqual(Color.green, this.Stroke.GetComponent<MeshRenderer>().sharedMaterial.color);
+            StrokeBrush updatedBrush = this.Stroke.GetBrush() as StrokeBrush;
             Assert.AreEqual(Color.green, updatedBrush.SketchMaterial.AlbedoColor);
-            Assert.AreEqual((2 * 20 + 2) * 8, this.Line.GetComponent<MeshFilter>().sharedMesh.vertices.Length);
+            Assert.AreEqual((2 * 20 + 2) * 8, this.Stroke.GetComponent<MeshFilter>().sharedMesh.vertices.Length);
         }
 
         [Test]

@@ -19,7 +19,7 @@ namespace VRSketchingGeometry.SketchObjectManagement
     /// </summary>
     /// <remarks>Original author: tterpi</remarks>
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
-    public class LineSketchObject : SketchObject, ISerializableComponent, IBrushable
+    public class StrokeSketchObject : SketchObject, ISerializableComponent, IBrushable
     {
         /// <summary>
         /// The instance of the smoothly interpolated Catmul-Rom spline mesh
@@ -123,7 +123,7 @@ namespace VRSketchingGeometry.SketchObjectManagement
             SetControlPointsLocalSpace(transformedControlPoints);
         }
 
-        public virtual void SetLineDiameter(float diameter)
+        public virtual void SetStrokeDiameter(float diameter)
         {
             this.lineDiameter = diameter;
 
@@ -141,7 +141,7 @@ namespace VRSketchingGeometry.SketchObjectManagement
             ChooseDisplayMethod();
         }
 
-        public virtual void SetLineCrossSection(List<Vector3> crossSection, List<Vector3> crossSectionNormals, float diameter) {
+        public virtual void SetStrokeCrossSection(List<Vector3> crossSection, List<Vector3> crossSectionNormals, float diameter) {
             this.lineDiameter = diameter;
 
             if (SplineMesh == null || LinearSplineMesh == null)
@@ -170,7 +170,7 @@ namespace VRSketchingGeometry.SketchObjectManagement
             this.SplineMesh.GetCrossSectionShape(out List<Vector3> CurrentCrossSectionShape, out List<Vector3> CurrentCrossSectionNormals);
             //SplineMesh = new SplineMesh(new KochanekBartelsSpline(steps), this.lineDiameter * Vector3.one);
             SplineMesh = this.MakeSplineMesh(steps, this.lineDiameter * Vector3.one);
-            this.SetLineCrossSection(CurrentCrossSectionShape, CurrentCrossSectionNormals, this.lineDiameter);
+            this.SetStrokeCrossSection(CurrentCrossSectionShape, CurrentCrossSectionNormals, this.lineDiameter);
             if (controlPoints.Count != 0) {
                 this.SetControlPointsLocalSpace(controlPoints);
             }
@@ -191,9 +191,9 @@ namespace VRSketchingGeometry.SketchObjectManagement
         /// </summary>
         /// <param name="point">Point in world space.</param>
         /// <param name="radius">Radius in world space.</param>
-        /// <param name="newLineSketchObjects">List of new line sketch objects that were created for the deletion.</param>
+        /// <param name="newStrokeSketchObjects">List of new line sketch objects that were created for the deletion.</param>
         /// <returns>Returns true if at least one control point was deleted, false otherwise.</returns>
-        internal bool DeleteControlPoints(Vector3 point, float radius, out List<LineSketchObject> newLineSketchObjects) {
+        internal bool DeleteControlPoints(Vector3 point, float radius, out List<StrokeSketchObject> newStrokeSketchObjects) {
             List<List<Vector3>> contiguousSections = new List<List<Vector3>>();
             List<Vector3> contiguousSection = new List<Vector3>();
 
@@ -215,7 +215,7 @@ namespace VRSketchingGeometry.SketchObjectManagement
                 contiguousSections.Add(contiguousSection);
             }
 
-            newLineSketchObjects = new List<LineSketchObject>();
+            newStrokeSketchObjects = new List<StrokeSketchObject>();
 
             //create lines from the sections
             if (contiguousSections.Count > 0)
@@ -232,13 +232,13 @@ namespace VRSketchingGeometry.SketchObjectManagement
                 //create new lines for each additional section
                 foreach (List<Vector3> section in contiguousSections)
                 {
-                    LineSketchObject newLine = Instantiate(this, this.transform.parent);
+                    StrokeSketchObject newStroke = Instantiate(this, this.transform.parent);
                     this.SplineMesh.GetCrossSectionShape(out List<Vector3> crossSectionVertices, out List<Vector3> crossSectionNormals);
-                    newLine.SetLineCrossSection(crossSectionVertices, crossSectionNormals, this.lineDiameter);
-                    newLine.SetInterpolationSteps(this.InterpolationSteps);
-                    newLine.SetControlPointsLocalSpace(section);
+                    newStroke.SetStrokeCrossSection(crossSectionVertices, crossSectionNormals, this.lineDiameter);
+                    newStroke.SetInterpolationSteps(this.InterpolationSteps);
+                    newStroke.SetControlPointsLocalSpace(section);
 
-                    newLineSketchObjects.Add(newLine);
+                    newStrokeSketchObjects.Add(newStroke);
                 }
             }
             else {
@@ -261,16 +261,16 @@ namespace VRSketchingGeometry.SketchObjectManagement
         /// <param name="point">Point in world space.</param>
         /// <param name="radius">Radius in world space.</param>
         public static void DeleteControlPoints(GameObject gameObject, Vector3 point, float radius) {
-            LineSketchObject line = gameObject.GetComponent<LineSketchObject>();
+            StrokeSketchObject stroke = gameObject.GetComponent<StrokeSketchObject>();
 
             //When there is only one control point, a sphere that is a child of the LineSketchObject is shown
             //This code checks if this child sphere of a LineSketchObject was collided with
-            if (line == null && gameObject.GetComponent<SphereCollider>() && gameObject.transform.parent.GetComponent<LineSketchObject>())
+            if (stroke == null && gameObject.GetComponent<SphereCollider>() && gameObject.transform.parent.GetComponent<StrokeSketchObject>())
             {
-                line = gameObject.transform.parent.GetComponent<LineSketchObject>();
+                stroke = gameObject.transform.parent.GetComponent<StrokeSketchObject>();
             }
 
-            line?.DeleteControlPoints(point, radius, out List<LineSketchObject> newLines);
+            stroke?.DeleteControlPoints(point, radius, out List<StrokeSketchObject> newLines);
         }
 
         private static bool IsInRadius(Vector3 a, Vector3 b, float radius) {
@@ -355,7 +355,7 @@ namespace VRSketchingGeometry.SketchObjectManagement
         }
 
         public Brush GetBrush() {
-            LineBrush brush = new LineBrush();
+            StrokeBrush brush = new StrokeBrush();
             brush.SketchMaterial = new SketchMaterialData(meshRenderer.sharedMaterial);
             brush.CrossSectionScale = this.lineDiameter;
             brush.InterpolationSteps = this.InterpolationSteps;
@@ -365,17 +365,17 @@ namespace VRSketchingGeometry.SketchObjectManagement
 
         public void SetBrush(Brush brush) {
             this.SetMaterial(Defaults.GetMaterialFromDictionary(brush.SketchMaterial));
-            if (brush is LineBrush lineBrush)
+            if (brush is StrokeBrush lineBrush)
             {
                 this.SetInterpolationSteps(lineBrush.InterpolationSteps);
-                this.SetLineCrossSection(lineBrush.CrossSectionVertices, lineBrush.CrossSectionNormals, lineBrush.CrossSectionScale);
+                this.SetStrokeCrossSection(lineBrush.CrossSectionVertices, lineBrush.CrossSectionNormals, lineBrush.CrossSectionScale);
             }
         }
 
-        protected LineSketchObjectData GetData() {
-            LineSketchObjectData data = new LineSketchObjectData
+        protected StrokeSketchObjectData GetData() {
+            StrokeSketchObjectData data = new StrokeSketchObjectData
             {
-                Interpolation = LineSketchObjectData.InterpolationType.Cubic,
+                Interpolation = StrokeSketchObjectData.InterpolationType.Cubic,
                 ControlPoints = GetControlPoints(),
                 CrossSectionScale = this.lineDiameter,
                 InterpolationSteps = this.InterpolationSteps
@@ -394,12 +394,12 @@ namespace VRSketchingGeometry.SketchObjectManagement
             return this.GetData();
         }
 
-        private void ApplyData(LineSketchObjectData data) {
+        private void ApplyData(StrokeSketchObjectData data) {
 
             this.transform.position = Vector3.zero;
             this.transform.rotation = Quaternion.identity;
             this.SetInterpolationSteps(data.InterpolationSteps);
-            this.SetLineCrossSection(data.CrossSectionVertices, data.CrossSectionNormals, data.CrossSectionScale);
+            this.SetStrokeCrossSection(data.CrossSectionVertices, data.CrossSectionNormals, data.CrossSectionScale);
             this.SetControlPointsLocalSpace(data.ControlPoints);
             data.ApplyDataToTransform(this.transform);
 
@@ -408,7 +408,7 @@ namespace VRSketchingGeometry.SketchObjectManagement
 
         void ISerializableComponent.ApplyData(SerializableComponentData data)
         {
-            if (data is LineSketchObjectData lineSketchData)
+            if (data is StrokeSketchObjectData lineSketchData)
             {
                 this.ApplyData(lineSketchData);
             }

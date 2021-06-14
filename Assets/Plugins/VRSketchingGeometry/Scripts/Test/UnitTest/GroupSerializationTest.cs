@@ -14,7 +14,7 @@ namespace Tests
 {
     public class GroupSerializationTest
     {
-        private LineSketchObject Line;
+        private StrokeSketchObject Stroke;
         private PatchSketchObject Patch;
         private RibbonSketchObject Ribbon;
         private SketchObjectGroup Group;
@@ -26,7 +26,7 @@ namespace Tests
             yield return SceneManager.LoadSceneAsync("CommandTestScene", LoadSceneMode.Single);
             this.Ribbon = GameObject.FindObjectOfType<RibbonSketchObject>();
             this.Patch = GameObject.FindObjectOfType<PatchSketchObject>();
-            this.Line = GameObject.FindObjectOfType<LineSketchObject>();
+            this.Stroke = GameObject.FindObjectOfType<StrokeSketchObject>();
             this.Group = GameObject.FindObjectOfType<SketchObjectGroup>();
             yield return null;
             Invoker = new CommandInvoker();
@@ -37,7 +37,7 @@ namespace Tests
         {
             this.Group.AddToGroup(this.Ribbon);
             this.Group.AddToGroup(this.Patch);
-            this.Group.AddToGroup(this.Line);
+            this.Group.AddToGroup(this.Stroke);
 
             SketchObjectGroupData data = (this.Group as ISerializableComponent).GetData() as SketchObjectGroupData;
             Assert.AreEqual(3, data.SketchObjects.Count);
@@ -81,7 +81,7 @@ namespace Tests
 
             this.Group.AddToGroup(this.Ribbon);
             this.Group.AddToGroup(this.Patch);
-            this.Group.AddToGroup(this.Line);
+            this.Group.AddToGroup(this.Stroke);
 
             SketchObjectGroupData data = (this.Group as ISerializableComponent).GetData() as SketchObjectGroupData;
 
@@ -89,7 +89,7 @@ namespace Tests
 
             Assert.AreEqual(3, newGroup.transform.childCount);
             Assert.AreEqual(1, newGroup.GetComponentsInChildren<RibbonSketchObject>().Length);
-            Assert.AreEqual(1, newGroup.GetComponentsInChildren<LineSketchObject>().Length);
+            Assert.AreEqual(1, newGroup.GetComponentsInChildren<StrokeSketchObject>().Length);
             Assert.AreEqual(1, newGroup.GetComponentsInChildren<PatchSketchObject>().Length);
         }
 
