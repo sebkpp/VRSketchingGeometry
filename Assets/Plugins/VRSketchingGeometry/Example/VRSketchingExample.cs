@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using VRSketchingGeometry;
 using VRSketchingGeometry.Commands;
-using VRSketchingGeometry.Commands.Line;
+using VRSketchingGeometry.Commands.Stroke;
 using VRSketchingGeometry.Commands.Ribbon;
 using VRSketchingGeometry.Commands.Patch;
 using VRSketchingGeometry.Commands.Group;
@@ -18,7 +19,7 @@ public class VRSketchingExample : MonoBehaviour
 
     public SketchWorld SketchWorld;
     public SketchWorld DeserializedSketchWorld;
-    public LineSketchObject LineSketchObject;
+    [FormerlySerializedAs("LineSketchObject")] public StrokeSketchObject StrokeSketchObject;
     public RibbonSketchObject RibbonSketchObject;
     public PatchSketchObject PatchSketchObject;
     public SketchObjectGroup SketchObjectGroup;
@@ -32,12 +33,12 @@ public class VRSketchingExample : MonoBehaviour
         SketchWorld = Instantiate(Defaults.SketchWorldPrefab).GetComponent<SketchWorld>();
 
         //Create a LineSketchObject
-        LineSketchObject = Instantiate(Defaults.LineSketchObjectPrefab).GetComponent<LineSketchObject>();
+        StrokeSketchObject = Instantiate(Defaults.StrokeSketchObjectPrefab).GetComponent<StrokeSketchObject>();
         Invoker = new CommandInvoker();
-        Invoker.ExecuteCommand(new AddControlPointCommand(this.LineSketchObject, new Vector3(1, 2, 3)));
-        Invoker.ExecuteCommand(new AddControlPointCommand(this.LineSketchObject, new Vector3(1, 4, 2)));
-        Invoker.ExecuteCommand(new AddControlPointCommand(this.LineSketchObject, new Vector3(1, 5, 3)));
-        Invoker.ExecuteCommand(new AddControlPointCommand(this.LineSketchObject, new Vector3(1, 5, 2)));
+        Invoker.ExecuteCommand(new AddControlPointCommand(this.StrokeSketchObject, new Vector3(1, 2, 3)));
+        Invoker.ExecuteCommand(new AddControlPointCommand(this.StrokeSketchObject, new Vector3(1, 4, 2)));
+        Invoker.ExecuteCommand(new AddControlPointCommand(this.StrokeSketchObject, new Vector3(1, 5, 3)));
+        Invoker.ExecuteCommand(new AddControlPointCommand(this.StrokeSketchObject, new Vector3(1, 5, 2)));
         Invoker.Undo();
         Invoker.Redo();
 
@@ -55,7 +56,7 @@ public class VRSketchingExample : MonoBehaviour
         Invoker.ExecuteCommand(new AddSegmentCommand(PatchSketchObject, new List<Vector3> { new Vector3(2, 0, 1), new Vector3(2, 1, 2), new Vector3(2, 0, 3) }));
 
         //Add the LineSketchObject to the SketchWorld
-        Invoker.ExecuteCommand(new AddObjectToSketchWorldRootCommand(LineSketchObject, SketchWorld));
+        Invoker.ExecuteCommand(new AddObjectToSketchWorldRootCommand(StrokeSketchObject, SketchWorld));
         //Create a SketchObjectGroup and add objects to it
         SketchObjectGroup = Instantiate(Defaults.SketchObjectGroupPrefab).GetComponent<SketchObjectGroup>();
         Invoker.ExecuteCommand(new AddToGroupCommand(SketchObjectGroup, RibbonSketchObject));

@@ -7,10 +7,10 @@ using VRSketchingGeometry.Splines;
 namespace VRSketchingGeometry.Serialization
 {
     /// <summary>
-    /// Contains the serialization data of a <see cref="VRSketchingGeometry.SketchObjectManagement.LineSketchObject"/>.
+    /// Contains the serialization data of a <see cref="StrokeSketchObject"/>.
     /// </summary>
     /// <remarks>Original author: tterpi</remarks>
-    public class LineSketchObjectData : SketchObjectData
+    public class StrokeSketchObjectData : SketchObjectData
     {
         public enum InterpolationType
         {
@@ -31,10 +31,10 @@ namespace VRSketchingGeometry.Serialization
             ISerializableComponent serializableComponent = null;
             if (Interpolation == InterpolationType.Cubic)
             {
-                serializableComponent = GameObject.Instantiate(defaults.LineSketchObjectPrefab).GetComponent<ISerializableComponent>();
+                serializableComponent = GameObject.Instantiate(defaults.StrokeSketchObjectPrefab).GetComponent<ISerializableComponent>();
             }
             else if (Interpolation == InterpolationType.Linear) {
-                serializableComponent = GameObject.Instantiate(defaults.LinearInterpolationLineSketchObjectPrefab).GetComponent<ISerializableComponent>();
+                serializableComponent = GameObject.Instantiate(defaults.LinearInterpolationStrokeSketchObjectPrefab).GetComponent<ISerializableComponent>();
             }
             return serializableComponent;
         }

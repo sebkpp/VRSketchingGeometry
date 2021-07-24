@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using VRSketchingGeometry.SketchObjectManagement;
 
-namespace VRSketchingGeometry.Commands.Line
+namespace VRSketchingGeometry.Commands.Stroke
 {
     /// <summary>
     /// Delete control points within a sphere volume defined by a point and radius.
@@ -11,11 +11,11 @@ namespace VRSketchingGeometry.Commands.Line
     /// <remarks>Original author: tterpi</remarks>
     public class DeleteControlPointsByRadiusCommand : ICommand
     {
-        private LineSketchObject OriginalLineSketchObject;
+        private StrokeSketchObject OriginalStrokeSketchObject;
         /// <summary>
         /// New sketch objects created during deletion of control points.
         /// </summary>
-        private List<LineSketchObject> NewLines;
+        private List<StrokeSketchObject> NewLines;
         /// <summary>
         /// Control points of OriginalLineSketchObject before deletion.
         /// </summary>
@@ -36,23 +36,23 @@ namespace VRSketchingGeometry.Commands.Line
         /// <summary>
         /// Command for deleting control points within a radius around a point of a line sketch object. 
         /// </summary>
-        /// <param name="lineSketchObject"></param>
+        /// <param name="strokeSketchObject"></param>
         /// <param name="point">Point around which the control points will be deleted.</param>
         /// <param name="radius">Radius around point in which the control points are deleted.</param>
-        public DeleteControlPointsByRadiusCommand(LineSketchObject lineSketchObject, Vector3 point, float radius)
+        public DeleteControlPointsByRadiusCommand(StrokeSketchObject strokeSketchObject, Vector3 point, float radius)
         {
-            this.OriginalLineSketchObject = lineSketchObject;
+            this.OriginalStrokeSketchObject = strokeSketchObject;
             this.Point = point;
             this.Radius = radius;
         }
 
         public bool Execute()
         {
-            this.OriginalControlPoints = OriginalLineSketchObject.GetControlPoints();
-            bool didDelete = OriginalLineSketchObject.DeleteControlPoints(Point, Radius, out NewLines);
-            if (OriginalLineSketchObject.gameObject.activeInHierarchy)
+            this.OriginalControlPoints = OriginalStrokeSketchObject.GetControlPoints();
+            bool didDelete = OriginalStrokeSketchObject.DeleteControlPoints(Point, Radius, out NewLines);
+            if (OriginalStrokeSketchObject.gameObject.activeInHierarchy)
             {
-                NewControlPoints = OriginalLineSketchObject.GetControlPoints();
+                NewControlPoints = OriginalStrokeSketchObject.GetControlPoints();
             }
             else {
                 NewControlPoints = null;
@@ -64,13 +64,13 @@ namespace VRSketchingGeometry.Commands.Line
         {
             if (NewControlPoints == null)
             {
-                SketchWorld.ActiveSketchWorld.DeleteObject(OriginalLineSketchObject);
+                SketchWorld.ActiveSketchWorld.DeleteObject(OriginalStrokeSketchObject);
             }
             else {
-                OriginalLineSketchObject.SetControlPointsLocalSpace(NewControlPoints);
+                OriginalStrokeSketchObject.SetControlPointsLocalSpace(NewControlPoints);
             }
 
-            foreach (LineSketchObject line in NewLines)
+            foreach (StrokeSketchObject line in NewLines)
             {
                 SketchWorld.ActiveSketchWorld.RestoreObject(line);
             }
@@ -78,12 +78,12 @@ namespace VRSketchingGeometry.Commands.Line
 
         public void Undo()
         {
-            if (!OriginalLineSketchObject.gameObject.activeInHierarchy) {
-                SketchWorld.ActiveSketchWorld.RestoreObject(OriginalLineSketchObject);
+            if (!OriginalStrokeSketchObject.gameObject.activeInHierarchy) {
+                SketchWorld.ActiveSketchWorld.RestoreObject(OriginalStrokeSketchObject);
             }
-            OriginalLineSketchObject.SetControlPointsLocalSpace(OriginalControlPoints);
+            OriginalStrokeSketchObject.SetControlPointsLocalSpace(OriginalControlPoints);
 
-            foreach (LineSketchObject line in NewLines) {
+            foreach (StrokeSketchObject line in NewLines) {
                 SketchWorld.ActiveSketchWorld.DeleteObject(line);
             }
 

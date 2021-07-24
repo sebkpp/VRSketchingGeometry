@@ -1,16 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using VRSketchingGeometry.SketchObjectManagement;
 using VRSketchingGeometry.Commands;
-using VRSketchingGeometry.Commands.Line;
+using VRSketchingGeometry.Commands.Stroke;
 
 public class CommandsTest : MonoBehaviour
 {
     public GameObject selectionPrefab;
-    public GameObject LineSketchObjectPrefab;
-    private LineSketchObject lineSketchObject;
-    private LineSketchObject lineSketchObject2;
+    [FormerlySerializedAs("LineSketchObjectPrefab")] public GameObject StrokeSketchObjectPrefab;
+    private StrokeSketchObject strokeSketchObject;
+    private StrokeSketchObject strokeSketchObject2;
     public SketchWorld sketchWorld;
     private CommandInvoker invoker;
 
@@ -21,16 +22,16 @@ public class CommandsTest : MonoBehaviour
     {
 
         invoker = new CommandInvoker();
-        lineSketchObject = Instantiate(LineSketchObjectPrefab).GetComponent<LineSketchObject>();
-        invoker.ExecuteCommand(new AddObjectToSketchWorldRootCommand(lineSketchObject, sketchWorld));
+        strokeSketchObject = Instantiate(StrokeSketchObjectPrefab).GetComponent<StrokeSketchObject>();
+        invoker.ExecuteCommand(new AddObjectToSketchWorldRootCommand(strokeSketchObject, sketchWorld));
 
-        lineSketchObject2 = Instantiate(LineSketchObjectPrefab).GetComponent<LineSketchObject>();
+        strokeSketchObject2 = Instantiate(StrokeSketchObjectPrefab).GetComponent<StrokeSketchObject>();
     }
 
     IEnumerator changeDiameter()
     {
         yield return new WaitForSeconds(5);
-        lineSketchObject.SetLineDiameter(.1f);
+        strokeSketchObject.SetStrokeDiameter(.1f);
     }
 
     IEnumerator deactivateSelection(SketchObjectSelection selection)
@@ -41,26 +42,26 @@ public class CommandsTest : MonoBehaviour
 
     private void lineSketchObjectTest()
     {
-        lineSketchObject.AddControlPoint(new Vector3(-2, 1, 0));
-        lineSketchObject.AddControlPoint(Vector3.one);
-        lineSketchObject.AddControlPoint(new Vector3(2, 2, 0));
-        lineSketchObject.AddControlPoint(new Vector3(2, 1, 0));
+        strokeSketchObject.AddControlPoint(new Vector3(-2, 1, 0));
+        strokeSketchObject.AddControlPoint(Vector3.one);
+        strokeSketchObject.AddControlPoint(new Vector3(2, 2, 0));
+        strokeSketchObject.AddControlPoint(new Vector3(2, 1, 0));
 
-        lineSketchObject.SetLineDiameter(.7f);
+        strokeSketchObject.SetStrokeDiameter(.7f);
 
         //StartCoroutine(changeDiameter());
 
-        lineSketchObject2.AddControlPoint(new Vector3(1, 0, 0));
-        lineSketchObject2.AddControlPoint(new Vector3(2, 1, 1));
-        lineSketchObject2.AddControlPoint(new Vector3(3, 2, 0));
-        lineSketchObject2.AddControlPoint(new Vector3(3, 1, 0));
+        strokeSketchObject2.AddControlPoint(new Vector3(1, 0, 0));
+        strokeSketchObject2.AddControlPoint(new Vector3(2, 1, 1));
+        strokeSketchObject2.AddControlPoint(new Vector3(3, 2, 0));
+        strokeSketchObject2.AddControlPoint(new Vector3(3, 1, 0));
 
         //GameObject selectionGO = new GameObject("sketchObjectSelection", typeof(SketchObjectSelection));
         GameObject selectionGO = Instantiate(selectionPrefab);
         GameObject groupGO = new GameObject("sketchObjectGroup", typeof(SketchObjectGroup));
         SketchObjectSelection selection = selectionGO.GetComponent<SketchObjectSelection>();
-        selection.AddToSelection(lineSketchObject);
-        selection.AddToSelection(lineSketchObject2);
+        selection.AddToSelection(strokeSketchObject);
+        selection.AddToSelection(strokeSketchObject2);
         selection.Activate();
         StartCoroutine(deactivateSelection(selection));
     }
@@ -68,11 +69,11 @@ public class CommandsTest : MonoBehaviour
     private void commandsTest() {
 
         //CommandInvoker invoker = new CommandInvoker();
-        invoker.ExecuteCommand(new AddControlPointCommand(lineSketchObject, new Vector3(-2, 1, 0)));
-        invoker.ExecuteCommand(new AddControlPointCommand(lineSketchObject, new Vector3(1, 1, 1)));
-        invoker.ExecuteCommand(new AddControlPointCommand(lineSketchObject, new Vector3(2, 2, 0)));
-        invoker.ExecuteCommand(new AddControlPointCommand(lineSketchObject, new Vector3(2, 3, 0)));
-        invoker.ExecuteCommand(new DeleteControlPointCommand(lineSketchObject));
+        invoker.ExecuteCommand(new AddControlPointCommand(strokeSketchObject, new Vector3(-2, 1, 0)));
+        invoker.ExecuteCommand(new AddControlPointCommand(strokeSketchObject, new Vector3(1, 1, 1)));
+        invoker.ExecuteCommand(new AddControlPointCommand(strokeSketchObject, new Vector3(2, 2, 0)));
+        invoker.ExecuteCommand(new AddControlPointCommand(strokeSketchObject, new Vector3(2, 3, 0)));
+        invoker.ExecuteCommand(new DeleteControlPointCommand(strokeSketchObject));
 
         invoker.Undo();
         invoker.Undo();
@@ -88,7 +89,7 @@ public class CommandsTest : MonoBehaviour
         invoker.Redo();
         invoker.Redo();
 
-        invoker.ExecuteCommand(new DeleteObjectCommand(lineSketchObject, sketchWorld));
+        invoker.ExecuteCommand(new DeleteObjectCommand(strokeSketchObject, sketchWorld));
 
         invoker.Undo();
         invoker.Redo();

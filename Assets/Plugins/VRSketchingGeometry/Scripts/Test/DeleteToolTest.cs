@@ -19,6 +19,6 @@ public class DeleteToolTest : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        LineSketchObject.DeleteControlPoints(other.gameObject, transform.position, transform.lossyScale.x / 2);
+        StrokeSketchObject.DeleteControlPoints(other.gameObject, transform.position, transform.lossyScale.x / 2);
     }
 }

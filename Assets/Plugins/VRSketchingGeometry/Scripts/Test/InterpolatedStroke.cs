@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using VRSketchingGeometry.Splines;
 
-public class InterpolatedLine : MonoBehaviour
+public class InterpolatedStroke : MonoBehaviour
 {
     [SerializeField]
     private LineRenderer LineRenderer;

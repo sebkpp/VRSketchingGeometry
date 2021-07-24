@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 namespace VRSketchingGeometry.Serialization {
     public class BrushCollection
     {
-        [XmlElement(typeof(Brush)), XmlElement(typeof(RibbonBrush)), XmlElement(typeof(LineBrush))]
+        [XmlElement(typeof(Brush)), XmlElement(typeof(RibbonBrush)), XmlElement(typeof(StrokeBrush))]
         public List<Brush> Brushes = new List<Brush>();
     }
 }

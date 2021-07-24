@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using VRSketchingGeometry.Serialization;
 
 namespace VRSketchingGeometry
@@ -15,8 +16,8 @@ namespace VRSketchingGeometry
         public Material StandardSketchMaterial;
         public Material TwoSidedSketchMaterial;
         public GameObject SketchWorldPrefab;
-        public GameObject LineSketchObjectPrefab;
-        public GameObject LinearInterpolationLineSketchObjectPrefab;
+        [FormerlySerializedAs("LineSketchObjectPrefab")] public GameObject StrokeSketchObjectPrefab;
+        [FormerlySerializedAs("LinearInterpolationLineSketchObjectPrefab")] public GameObject LinearInterpolationStrokeSketchObjectPrefab;
         public GameObject SketchObjectGroupPrefab;
         public GameObject SketchObjectSelectionPrefab;
         public GameObject PatchSketchObjectPrefab;

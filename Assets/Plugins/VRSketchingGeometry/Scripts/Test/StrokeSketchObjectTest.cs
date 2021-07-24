@@ -1,17 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using VRSketchingGeometry;
 using VRSketchingGeometry.SketchObjectManagement;
 using VRSketchingGeometry.Serialization;
 using VRSketchingGeometry.Meshing;
 
-public class LineSketchObjectTest : MonoBehaviour
+public class StrokeSketchObjectTest : MonoBehaviour
 {
     public GameObject selectionPrefab;
-    public GameObject LineSketchObjectPrefab;
-    private LineSketchObject lineSketchObject;
-    private LineSketchObject lineSketchObject2;
+    [FormerlySerializedAs("LineSketchObjectPrefab")] public GameObject StrokeSketchObjectPrefab;
+    private StrokeSketchObject strokeSketchObject;
+    private StrokeSketchObject strokeSketchObject2;
     private PatchSketchObject patchSketchObject;
     private RibbonSketchObject ribbonSketchObject;
 
@@ -30,20 +31,20 @@ public class LineSketchObjectTest : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        lineSketchObject = Instantiate(LineSketchObjectPrefab).GetComponent<LineSketchObject>();
-        lineSketchObject.SetLineDiameter(.5f);
+        strokeSketchObject = Instantiate(StrokeSketchObjectPrefab).GetComponent<StrokeSketchObject>();
+        strokeSketchObject.SetStrokeDiameter(.5f);
         //lineSketchObject2 = Instantiate(LineSketchObjectPrefab).GetComponent<LineSketchObject>();
-        lineSketchObject2 = Instantiate(defaults.LinearInterpolationLineSketchObjectPrefab).GetComponent<LineSketchObject>();
+        strokeSketchObject2 = Instantiate(defaults.LinearInterpolationStrokeSketchObjectPrefab).GetComponent<StrokeSketchObject>();
         patchSketchObject = Instantiate(defaults.PatchSketchObjectPrefab).GetComponent<PatchSketchObject>();
         ribbonSketchObject = Instantiate(defaults.RibbonSketchObjectPrefab).GetComponent<RibbonSketchObject>();
     }
 
     IEnumerator changeDiameter() {
         yield return new WaitForSeconds(5);
-        lineSketchObject.SetLineDiameter(.1f);
+        strokeSketchObject.SetStrokeDiameter(.1f);
         yield return new WaitForSeconds(2);
-        lineSketchObject.DeleteControlPoint();
-        lineSketchObject.DeleteControlPoint();
+        strokeSketchObject.DeleteControlPoint();
+        strokeSketchObject.DeleteControlPoint();
 
     }
 
@@ -53,49 +54,49 @@ public class LineSketchObjectTest : MonoBehaviour
     }
 
     private void lineSketchObjectTest() {
-        lineSketchObject.AddControlPoint(new Vector3(-2, 1, 0));
-        lineSketchObject.AddControlPoint(Vector3.one);
-        lineSketchObject.AddControlPoint(new Vector3(2, 2, 0));
-        lineSketchObject.AddControlPoint(new Vector3(2, 1, 0));
+        strokeSketchObject.AddControlPoint(new Vector3(-2, 1, 0));
+        strokeSketchObject.AddControlPoint(Vector3.one);
+        strokeSketchObject.AddControlPoint(new Vector3(2, 2, 0));
+        strokeSketchObject.AddControlPoint(new Vector3(2, 1, 0));
 
         //lineSketchObject.setLineDiameter(.7f);
         StartCoroutine(changeDiameter());
 
-        lineSketchObject2.AddControlPoint(new Vector3(1,0,0));
-        lineSketchObject2.AddControlPoint(new Vector3(2, 1, 1));
-        lineSketchObject2.AddControlPoint(new Vector3(3, 2, 0));
-        lineSketchObject2.minimumControlPointDistance = 2f;
-        lineSketchObject2.AddControlPointContinuous(new Vector3(3, 1, 0));
+        strokeSketchObject2.AddControlPoint(new Vector3(1,0,0));
+        strokeSketchObject2.AddControlPoint(new Vector3(2, 1, 1));
+        strokeSketchObject2.AddControlPoint(new Vector3(3, 2, 0));
+        strokeSketchObject2.minimumControlPointDistance = 2f;
+        strokeSketchObject2.AddControlPointContinuous(new Vector3(3, 1, 0));
 
         //GameObject selectionGO = new GameObject("sketchObjectSelection", typeof(SketchObjectSelection));
         GameObject selectionGO = Instantiate(selectionPrefab);
         GameObject groupGO = new GameObject("sketchObjectGroup", typeof(SketchObjectGroup));
         SketchObjectSelection selection = selectionGO.GetComponent<SketchObjectSelection>();
-        selection.AddToSelection(lineSketchObject);
-        selection.AddToSelection(lineSketchObject2);
+        selection.AddToSelection(strokeSketchObject);
+        selection.AddToSelection(strokeSketchObject2);
         selection.Activate();
         StartCoroutine(deactivateSelection(selection));
     }
 
     private void groupSerializationTest()
     {
-        lineSketchObject.AddControlPoint(new Vector3(-2, 1, 0));
-        lineSketchObject.AddControlPoint(Vector3.one);
-        lineSketchObject.AddControlPoint(new Vector3(2, 2, 0));
-        lineSketchObject.AddControlPoint(new Vector3(2, 1, 0));
+        strokeSketchObject.AddControlPoint(new Vector3(-2, 1, 0));
+        strokeSketchObject.AddControlPoint(Vector3.one);
+        strokeSketchObject.AddControlPoint(new Vector3(2, 2, 0));
+        strokeSketchObject.AddControlPoint(new Vector3(2, 1, 0));
 
         //lineSketchObject.setLineDiameter(.7f);
         //StartCoroutine(changeDiameter());
 
-        lineSketchObject2.AddControlPoint(new Vector3(1, 0, 0));
-        lineSketchObject2.AddControlPoint(new Vector3(2, 1, 1));
-        lineSketchObject2.AddControlPoint(new Vector3(3, 2, 0));
+        strokeSketchObject2.AddControlPoint(new Vector3(1, 0, 0));
+        strokeSketchObject2.AddControlPoint(new Vector3(2, 1, 1));
+        strokeSketchObject2.AddControlPoint(new Vector3(3, 2, 0));
         //lineSketchObject2.minimumControlPointDistance = 2f;
         //lineSketchObject2.addControlPointContinuous(new Vector3(3, 1, 0));
         GameObject groupGO = new GameObject("sketchObjectGroup", typeof(SketchObjectGroup));
         SketchObjectGroup group = groupGO.GetComponent<SketchObjectGroup>();
-        group.AddToGroup(lineSketchObject);
-        group.AddToGroup(lineSketchObject2);
+        group.AddToGroup(strokeSketchObject);
+        group.AddToGroup(strokeSketchObject2);
 
         SketchObjectGroupData groupData = (group as ISerializableComponent).GetData() as SketchObjectGroupData;
         string xmlFilePath = Serializer.WriteTestXmlFile<SketchObjectGroupData>(groupData);
@@ -118,32 +119,32 @@ public class LineSketchObjectTest : MonoBehaviour
 
     private void SketchWorldSerializationTest()
     {
-        lineSketchObject.AddControlPoint(new Vector3(-2, 1, 0));
-        lineSketchObject.AddControlPoint(Vector3.one);
-        lineSketchObject.AddControlPoint(new Vector3(2, 2, 0));
-        lineSketchObject.AddControlPoint(new Vector3(2, 1, 0));
+        strokeSketchObject.AddControlPoint(new Vector3(-2, 1, 0));
+        strokeSketchObject.AddControlPoint(Vector3.one);
+        strokeSketchObject.AddControlPoint(new Vector3(2, 2, 0));
+        strokeSketchObject.AddControlPoint(new Vector3(2, 1, 0));
         //lineSketchObject.gameObject.GetComponent<MeshRenderer>().material = twoSidedMaterial;
-        lineSketchObject.gameObject.GetComponent<MeshRenderer>().material = ropeMaterial;
-        lineSketchObject.SetLineCrossSection(CircularCrossSection.GenerateVertices(4), CircularCrossSection.GenerateVertices(4,1f), .4f);
+        strokeSketchObject.gameObject.GetComponent<MeshRenderer>().material = ropeMaterial;
+        strokeSketchObject.SetStrokeCrossSection(CircularCrossSection.GenerateVertices(4), CircularCrossSection.GenerateVertices(4,1f), .4f);
 
         //lineSketchObject.setLineDiameter(.7f);
         //StartCoroutine(changeDiameter());
 
-        lineSketchObject2.AddControlPoint(new Vector3(1, 0, 0));
-        lineSketchObject2.AddControlPoint(new Vector3(2, 1, 1));
-        lineSketchObject2.AddControlPoint(new Vector3(3, 2, 0));
-        lineSketchObject2.AddControlPoint(new Vector3(4, 4, 4));
-        lineSketchObject2.DeleteControlPoint();
-        lineSketchObject2.DeleteControlPoint();
-        lineSketchObject2.DeleteControlPoint();
-        lineSketchObject2.DeleteControlPoint();
-        lineSketchObject2.DeleteControlPoint();
-        lineSketchObject2.AddControlPoint(new Vector3(1, 0, 0));
-        lineSketchObject2.AddControlPoint(new Vector3(2, 1, 1));
-        lineSketchObject2.AddControlPoint(new Vector3(3, 2, 0));
-        lineSketchObject2.AddControlPoint(new Vector3(4, 4, 4));
-        lineSketchObject2.GetComponent<MeshRenderer>().material.color = Color.blue;
-        lineSketchObject2.gameObject.GetComponent<MeshRenderer>().material = ropeMaterial;
+        strokeSketchObject2.AddControlPoint(new Vector3(1, 0, 0));
+        strokeSketchObject2.AddControlPoint(new Vector3(2, 1, 1));
+        strokeSketchObject2.AddControlPoint(new Vector3(3, 2, 0));
+        strokeSketchObject2.AddControlPoint(new Vector3(4, 4, 4));
+        strokeSketchObject2.DeleteControlPoint();
+        strokeSketchObject2.DeleteControlPoint();
+        strokeSketchObject2.DeleteControlPoint();
+        strokeSketchObject2.DeleteControlPoint();
+        strokeSketchObject2.DeleteControlPoint();
+        strokeSketchObject2.AddControlPoint(new Vector3(1, 0, 0));
+        strokeSketchObject2.AddControlPoint(new Vector3(2, 1, 1));
+        strokeSketchObject2.AddControlPoint(new Vector3(3, 2, 0));
+        strokeSketchObject2.AddControlPoint(new Vector3(4, 4, 4));
+        strokeSketchObject2.GetComponent<MeshRenderer>().material.color = Color.blue;
+        strokeSketchObject2.gameObject.GetComponent<MeshRenderer>().material = ropeMaterial;
 
         patchSketchObject.transform.position += new Vector3(3,0,0);
         patchSketchObject.Width = 3;
@@ -161,8 +162,8 @@ public class LineSketchObjectTest : MonoBehaviour
         SketchObjectGroup group = groupGO.GetComponent<SketchObjectGroup>();
         group.defaults = this.defaults;
 
-        SketchWorld.AddObject(lineSketchObject);
-        group.AddToGroup(lineSketchObject2);
+        SketchWorld.AddObject(strokeSketchObject);
+        group.AddToGroup(strokeSketchObject2);
         group.AddToGroup(patchSketchObject);
         group.transform.position += new Vector3(2.568f, 5.555f, 1.123f);
         SketchWorld.AddObject(group);
@@ -189,7 +190,7 @@ public class LineSketchObjectTest : MonoBehaviour
         string brushXmlPath = System.IO.Path.Combine(Application.dataPath, "BrushCollectionTest.xml");
 
         BrushCollection brushes = new BrushCollection();
-        brushes.Brushes.Add(lineSketchObject.GetBrush());
+        brushes.Brushes.Add(strokeSketchObject.GetBrush());
         brushes.Brushes.Add(patchSketchObject.GetBrush());
         brushes.Brushes.Add(ribbonSketchObject.GetBrush());
         Serializer.SerializeToXmlFile<BrushCollection>(brushes, brushXmlPath);
